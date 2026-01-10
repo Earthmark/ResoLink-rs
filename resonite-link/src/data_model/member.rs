@@ -16,39 +16,27 @@ pub enum Member {
     #[serde(rename = "syncObject")]
     SyncObject(SyncObject),
 
+    // Char(r)?
+    #[serde(rename = "string")]
+    String(Field<Option<String>>),
+
     #[serde(rename = "byte")]
     Byte(Field<u8>),
-    #[serde(rename = "byte?")]
-    NullByte(Field<Option<u8>>),
     #[serde(rename = "ushort")]
     UShort(Field<u16>),
-    #[serde(rename = "ushort?")]
-    NullUShort(Field<Option<u16>>),
     #[serde(rename = "uint")]
     UInt(Field<u32>),
-    #[serde(rename = "uint?")]
-    NullUInt(Field<Option<u32>>),
     #[serde(rename = "ulong")]
     ULong(Field<u64>),
-    #[serde(rename = "ulong?")]
-    NullULong(Field<Option<u64>>),
 
     #[serde(rename = "sbyte")]
     SByte(Field<i8>),
-    #[serde(rename = "sbyte?")]
-    NullSByte(Field<Option<i8>>),
     #[serde(rename = "short")]
     Short(Field<i16>),
-    #[serde(rename = "short?")]
-    NullShort(Field<Option<i16>>),
     #[serde(rename = "int")]
     Int(Field<i32>),
-    #[serde(rename = "int?")]
-    NullInt(Field<Option<i32>>),
     #[serde(rename = "long")]
     Long(Field<i64>),
-    #[serde(rename = "long?")]
-    NullLong(Field<Option<i64>>),
 
     #[serde(rename = "float")]
     Float(Field<f32>),
@@ -56,8 +44,6 @@ pub enum Member {
     NullFloat(Field<Option<f32>>),
     #[serde(rename = "double")]
     Double(Field<f64>),
-    #[serde(rename = "double?")]
-    NullDouble(Field<Option<f64>>),
 
     // decimal?
     #[serde(rename = "bool")]
@@ -65,49 +51,51 @@ pub enum Member {
     #[serde(rename = "bool?")]
     NullBool(Field<Option<bool>>),
 
-    // Char(r)?
-    #[serde(rename = "string")]
-    String(Field<String>),
-    #[serde(rename = "string?")]
-    NullString(Field<Option<String>>),
-
     #[serde(rename = "color")]
     Color(Field<Color>),
-    #[serde(rename = "color?")]
-    NullColor(Field<Option<Color>>),
 
     #[serde(rename = "colorX")]
     ColorX(Field<ColorX>),
-    #[serde(rename = "colorX?")]
-    NullColorX(Field<Option<ColorX>>),
 
     #[serde(rename = "color32")]
     Color32(Field<Color32>),
-    #[serde(rename = "color32?")]
-    NullColor32(Field<Option<Color32>>),
 
     // Vectors and matrices...
     #[serde(rename = "float3")]
     Float3(Field<Float3>),
-    #[serde(rename = "float3?")]
-    NullFloat3(Field<Option<Float3>>),
 
     #[serde(rename = "floatq")]
     FloatQ(Field<FloatQ>),
-    #[serde(rename = "floatq?")]
-    NullFloatQ(Field<Option<FloatQ>>),
+
+    // TODO: Implement more fields.
 }
 
 impl super::ID for Member {
     fn id(&self) -> &str {
+        use Member::*;
         match self {
-            Member::Byte(byte) => byte.id(),
-            Member::NullByte(byte) => byte.id(),
-            Member::UShort(short) => short.id(),
-            Member::NullUShort(short) => short.id(),
-            Member::UInt(uint) => uint.id(),
-            Member::NullUInt(uint) => uint.id(),
-            _ => todo!("If you run into this, match cases need to be added for member interface code."),
+            Reference(f) => f.id(),
+            SyncList(f) => f.id(),
+            SyncObject(f) => f.id(),
+            String(f) => f.id(),
+            Byte(f) => f.id(),
+            UShort(f) => f.id(),
+            UInt(f) => f.id(),
+            ULong(f) => f.id(),
+            SByte(f) => f.id(),
+            Short(f) => f.id(),
+            Int(f) => f.id(),
+            Long(f) => f.id(),
+            Float(f) => f.id(),
+            NullFloat(f) => f.id(),
+            Double(f) => f.id(),
+            Bool(f) => f.id(),
+            NullBool(f) => f.id(),
+            Color(f) => f.id(),
+            ColorX(f) => f.id(),
+            Color32(f) => f.id(),
+            Float3(f) => f.id(),
+            FloatQ(f) => f.id(),
         }
     }
 }

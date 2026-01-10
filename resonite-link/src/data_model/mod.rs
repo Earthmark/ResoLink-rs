@@ -14,6 +14,7 @@ pub use member::Member;
 pub use reference::Reference;
 pub use sync_object::SyncObject;
 pub use sync_list::SyncList;
+pub use primitives::*;
 
 pub trait ID {
     fn id(&self) -> &str;

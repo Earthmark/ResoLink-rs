@@ -16,7 +16,11 @@ async fn main() {
         .unwrap();
 
     let response = client
-        .send(resonite_link_client::Message::new_get_slot("Root", 0, false))
+        .send(resonite_link_client::Message::GetSlot {
+            slot_id: "Root".into(),
+            depth: 3,
+            include_component_data: true,
+        })
         .await
         .unwrap();
 

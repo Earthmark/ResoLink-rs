@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package rfmk.resonite;
+
+import "slot.proto";
+import "component.proto";
+
+service ResoniteLink {
+  rpc GetSlot (GetSlotRequest) returns (SlotResponse) {}
+  rpc AddSlot (AddOrUpdateSlotRequest) returns (SlotResponse) {}
+  rpc UpdateSlot (AddOrUpdateSlotRequest) returns (SlotResponse) {}
+  rpc RemoveSlot (RemoveSlotRequest) returns (SlotResponse) {}
+
+  rpc GetComponent (ComponentIdRequest) returns (ComponentResponse) {}
+  rpc AddComponent (AddOrUpdateComponentRequest) returns (ComponentResponse) {}
+  rpc UpdateComponent (AddOrUpdateComponentRequest) returns (ComponentResponse) {}
+  rpc RemoveComponent (ComponentIdRequest) returns (ComponentResponse) {}
+}
+
+message GetSlotRequest {
+  string slot_id = 1;
+  int32 depth = 2;
+  bool include_component_data = 3;
+}
+
+message AddOrUpdateSlotRequest {
+  Slot data = 1;
+}
+
+message RemoveSlotRequest {
+  string slot_id = 1;
+}
+
+message ComponentIdRequest {
+  string component_id = 1;
+}
+
+message AddOrUpdateComponentRequest {
+  Component data = 1;
+  /// For add only, ignored for update.
+  string container_slot_id = 2;
+}
+
+message SlotResponse {
+  Slot data = 1;
+  int32 depth = 2;
+}
+
+message ComponentResponse {
+  Component data = 1;
+}

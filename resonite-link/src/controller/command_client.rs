@@ -260,11 +260,19 @@ mod tests {
         let client = Client::connect("ws://127.0.0.1:8080", None).await.unwrap();
         let mut responses = vec![
             client
-                .send(Message::new_get_slot("ROOT", 1, false))
+                .send(Message::GetSlot {
+                    slot_id: "ROOT".into(),
+                    depth: 1,
+                    include_component_data: false,
+                })
                 .await
                 .unwrap(),
             client
-                .send(Message::new_get_slot("ROOT", 1, false))
+                .send(Message::GetSlot {
+                    slot_id: "ROOT".into(),
+                    depth: 1,
+                    include_component_data: false,
+                })
                 .await
                 .unwrap(),
         ];
@@ -273,8 +281,16 @@ mod tests {
         assert_eq!(
             requests.await.unwrap(),
             vec![
-                Message::new_get_slot("ROOT", 1, false),
-                Message::new_get_slot("ROOT", 1, false)
+                Message::GetSlot {
+                    slot_id: "ROOT".into(),
+                    depth: 1,
+                    include_component_data: false,
+                },
+                Message::GetSlot {
+                    slot_id: "ROOT".into(),
+                    depth: 1,
+                    include_component_data: false,
+                }
             ]
         );
 

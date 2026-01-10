@@ -14,57 +14,6 @@ pub struct MessageWrapper {
     pub message_id: String,
 }
 
-impl Message {
-    pub fn new_get_slot(
-        slot_id: impl Into<String>,
-        depth: i32,
-        include_component_data: bool,
-    ) -> Self {
-        Self::GetSlot {
-            slot_id: slot_id.into(),
-            depth,
-            include_component_data,
-        }
-    }
-
-    pub fn new_add_slot(slot: Slot) -> Self {
-        Self::AddSlot { data: slot }
-    }
-
-    pub fn new_update_slot(slot: Slot) -> Self {
-        Self::UpdateSlot { data: slot }
-    }
-
-    pub fn new_remove_slot(slot_id: impl Into<String>) -> Self {
-        Self::RemoveSlot {
-            slot_id: slot_id.into(),
-        }
-    }
-
-    pub fn new_get_component(component_id: impl Into<String>) -> Self {
-        Self::GetComponent {
-            component_id: component_id.into(),
-        }
-    }
-
-    pub fn new_add_component(component: Component, container_slot_id: impl Into<String>) -> Self {
-        Self::AddComponent {
-            data: component,
-            container_slot_id: container_slot_id.into(),
-        }
-    }
-
-    pub fn new_update_component(component: Component) -> Self {
-        Self::UpdateComponent { data: component }
-    }
-
-    pub fn new_remove_component(component_id: impl Into<String>) -> Self {
-        Self::RemoveComponent {
-            component_id: component_id.into(),
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 #[serde(rename_all = "camelCase", tag = "$type")]
 pub enum Message {
@@ -140,7 +89,11 @@ mod tests {
         assert_bi_eq_json(
             MessageWrapper {
                 message_id: "Magic!".into(),
-                inner: Message::new_get_slot("1", -1, false),
+                inner: Message::GetSlot {
+                    slot_id: "1".into(),
+                    depth: -1,
+                    include_component_data: false,
+                },
             },
             json!({
                 "$type": "getSlot",

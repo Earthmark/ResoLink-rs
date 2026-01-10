@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package rfmk.resonite;
+
+import "fields.proto";
+
+message Component {
+  string id = 1;
+  bool is_reference_only = 2;
+  string component_type = 3;
+  map<string, Member> members = 4;
+}
