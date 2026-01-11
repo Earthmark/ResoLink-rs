@@ -90,7 +90,7 @@ impl ResoniteLink for LinkProxy {
     ) -> Result<Response<SlotResponse>, Status> {
         let request = request.into_inner();
         if let Some(slot) = request.data {
-            self.proxy_slot_req(resonite_link_client::Message::AddSlot { data: slot.into() })
+            self.proxy_slot_req(resonite_link_client::Message::AddSlot { data: slot.try_into()? })
                 .await
         } else {
             Err(Status::new(Code::InvalidArgument, "data is required."))
@@ -103,7 +103,7 @@ impl ResoniteLink for LinkProxy {
     ) -> Result<Response<SlotResponse>, Status> {
         let request = request.into_inner();
         if let Some(slot) = request.data {
-            self.proxy_slot_req(resonite_link_client::Message::UpdateSlot { data: slot.into() })
+            self.proxy_slot_req(resonite_link_client::Message::UpdateSlot { data: slot.try_into()? })
                 .await
         } else {
             Err(Status::new(Code::InvalidArgument, "data is required."))
@@ -140,7 +140,7 @@ impl ResoniteLink for LinkProxy {
         if let Some(component) = request.data {
             self.proxy_component_req(resonite_link_client::Message::AddComponent {
                 container_slot_id: request.container_slot_id,
-                data: component.into(),
+                data: component.try_into()?,
             })
             .await
         } else {
@@ -155,7 +155,7 @@ impl ResoniteLink for LinkProxy {
         let request = request.into_inner();
         if let Some(component) = request.data {
             self.proxy_component_req(resonite_link_client::Message::UpdateComponent {
-                data: component.into(),
+                data: component.try_into()?,
             })
             .await
         } else {

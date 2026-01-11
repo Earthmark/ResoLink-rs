@@ -2,10 +2,40 @@ syntax = "proto3";
 
 package rfmk.resonite;
 
+message Int2 {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message Int3 {
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+}
+
+message Int4 {
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+  int32 w = 4;
+}
+
+message Float2 {
+  float x = 1;
+  float y = 2;
+}
+
 message Float3 {
   float x = 1;
   float y = 2;
   float z = 3;
+}
+
+message Float4 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float w = 4;
 }
 
 message FloatQ {

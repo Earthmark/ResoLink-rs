@@ -10,6 +10,8 @@ message Member {
     SyncList sync_list = 2;
     SyncObject sync_object = 3;
     FieldString string = 4;
+    FieldUri uri = 23;
+    FieldEnum enum = 24;
     FieldByte byte = 5;
     FieldUShort ushort = 6;
     FieldUInt uint = 7;
@@ -17,16 +19,26 @@ message Member {
     FieldSByte sbyte = 9;
     FieldShort short = 10;
     FieldInt int = 11;
+    FieldNullInt nullInt = 32;
+    FieldInt2 int2 = 25;
+    FieldInt2 nullInt2 = 31;
+    FieldInt3 int3 = 26;
+    FieldInt4 int4 = 27;
     FieldLong long = 12;
     FieldFloat float = 13;
     FieldNullFloat nullFloat = 14;
     FieldDouble double = 15;
     FieldBool bool = 16;
     FieldNullBool nullBool = 17;
+    FieldFloat2 float2 = 28;
     FieldFloat3 float3 = 18;
+    FieldFloat3 nullFloat3 = 33;
+    FieldFloat4 float4 = 29;
     FieldFloatQ floatQ = 19;
+    FieldFloatQ nullFloatQ = 34;
     FieldColor color = 20;
     FieldColorX colorX = 21;
+    FieldColorX nullColorX = 30;
     FieldColor32 color32 = 22;
 
     // TODO: Implement more fields.
@@ -50,6 +62,16 @@ message SyncObject {
 }
 
 message FieldString {
+  string id = 1;
+  optional string value = 2;
+}
+
+message FieldUri {
+  string id = 1;
+  optional string value = 2;
+}
+
+message FieldEnum {
   string id = 1;
   optional string value = 2;
 }
@@ -89,6 +111,26 @@ message FieldInt {
   int32 value = 2;
 }
 
+message FieldNullInt {
+  string id = 1;
+  optional int32 value = 2;
+}
+
+message FieldInt2 {
+  string id = 1;
+  Int2 value = 2;
+}
+
+message FieldInt3 {
+  string id = 1;
+  Int3 value = 2;
+}
+
+message FieldInt4 {
+  string id = 1;
+  Int4 value = 2;
+}
+
 message FieldLong {
   string id = 1;
   int64 value = 2;
@@ -119,9 +161,19 @@ message FieldNullBool {
   optional bool value = 2;
 }
 
+message FieldFloat2 {
+  string id = 1;
+  Float2 value = 2;
+}
+
 message FieldFloat3 {
   string id = 1;
   Float3 value = 2;
+}
+
+message FieldFloat4 {
+  string id = 1;
+  Float4 value = 2;
 }
 
 message FieldColor {
@@ -143,3 +195,4 @@ message FieldFloatQ {
   string id = 1;
   FloatQ value = 2;
 }
+

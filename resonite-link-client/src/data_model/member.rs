@@ -1,5 +1,5 @@
 use crate::data_model::Field;
-use crate::data_model::primitives::{Color, Color32, ColorX, Float3, FloatQ};
+use crate::data_model::primitives::*;
 use crate::data_model::reference::Reference;
 use crate::data_model::sync_list::SyncList;
 use crate::data_model::sync_object::SyncObject;
@@ -17,8 +17,12 @@ pub enum Member {
     SyncObject(SyncObject),
 
     // Char(r)?
-    #[serde(rename = "string")]
+    #[serde(rename = "string", alias = "empty")]
     String(Field<Option<String>>),
+    #[serde(rename = "Uri")]
+    Uri(Field<Option<String>>),
+    #[serde(rename = "enum")]
+    Enum(Field<Option<String>>),
 
     #[serde(rename = "byte")]
     Byte(Field<u8>),
@@ -35,8 +39,19 @@ pub enum Member {
     Short(Field<i16>),
     #[serde(rename = "int")]
     Int(Field<i32>),
+    #[serde(rename = "int?")]
+    NullInt(Field<Option<i32>>),
     #[serde(rename = "long")]
     Long(Field<i64>),
+
+    #[serde(rename = "int2")]
+    Int2(Field<Int2>),
+    #[serde(rename = "int2?")]
+    NullInt2(Field<Option<Int2>>),
+    #[serde(rename = "int3")]
+    Int3(Field<Int3>),
+    #[serde(rename = "int4")]
+    Int4(Field<Int4>),
 
     #[serde(rename = "float")]
     Float(Field<f32>),
@@ -56,47 +71,47 @@ pub enum Member {
 
     #[serde(rename = "colorX")]
     ColorX(Field<ColorX>),
+    #[serde(rename = "colorX?")]
+    NullColorX(Field<Option<ColorX>>),
 
     #[serde(rename = "color32")]
     Color32(Field<Color32>),
 
     // Vectors and matrices...
+    #[serde(rename = "float2")]
+    Float2(Field<Float2>),
     #[serde(rename = "float3")]
     Float3(Field<Float3>),
+    #[serde(rename = "float3?")]
+    NullFloat3(Field<Option<Float3>>),
+    #[serde(rename = "float4")]
+    Float4(Field<Float4>),
 
-    #[serde(rename = "floatq")]
+    #[serde(rename = "floatQ")]
     FloatQ(Field<FloatQ>),
-
+    #[serde(rename = "floatQ?")]
+    NullFloatQ(Field<Option<FloatQ>>),
     // TODO: Implement more fields.
+}
+
+macro_rules! match_id {
+    ($target:ident, $($field:ident),+ $(,)?) => {
+        match $target {
+            $(
+                $field(f) => f.id(),
+            )+
+        }
+    };
 }
 
 impl super::ID for Member {
     fn id(&self) -> &str {
         use Member::*;
-        match self {
-            Reference(f) => f.id(),
-            SyncList(f) => f.id(),
-            SyncObject(f) => f.id(),
-            String(f) => f.id(),
-            Byte(f) => f.id(),
-            UShort(f) => f.id(),
-            UInt(f) => f.id(),
-            ULong(f) => f.id(),
-            SByte(f) => f.id(),
-            Short(f) => f.id(),
-            Int(f) => f.id(),
-            Long(f) => f.id(),
-            Float(f) => f.id(),
-            NullFloat(f) => f.id(),
-            Double(f) => f.id(),
-            Bool(f) => f.id(),
-            NullBool(f) => f.id(),
-            Color(f) => f.id(),
-            ColorX(f) => f.id(),
-            Color32(f) => f.id(),
-            Float3(f) => f.id(),
-            FloatQ(f) => f.id(),
-        }
+        match_id!(
+            self, Reference, SyncList, SyncObject, String, Uri, Enum, Byte, UShort, UInt, ULong,
+            SByte, Short, NullInt, Int, NullInt2, Int2, Int3, Int4, Long, Float, Float3, NullFloat3, FloatQ, Float2, Float4,
+            NullFloatQ, NullFloat, Double, Bool, NullBool, Color, ColorX, Color32, NullColorX
+        )
     }
 }
 
