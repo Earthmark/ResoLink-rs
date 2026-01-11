@@ -1,0 +1,20 @@
+[package]
+name = "resonite-link-grpc-bridge"
+version = "0.1.0"
+edition = "2024"
+description = "An unofficial bridge between the resonite link protocol and the grpc variant."
+license = "MIT"
+repository = "https://github.com/Earthmark/ResoLink-rs"
+
+[dependencies]
+resonite-link-client = { path = "../resonite-link" }
+tonic = "*"
+prost = "*"
+tonic-prost = "*"
+tokio = { version = "1.0", features = ["full"] }
+log = "0.4.29"
+clap = { version = "*", features = ["derive"] }
+env_logger = "*"
+
+[build-dependencies]
+tonic-prost-build = "*"

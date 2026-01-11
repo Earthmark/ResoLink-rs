@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package rfmk.resonite;
+
+message Float3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message FloatQ {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float w = 4;
+}
+
+message Color {
+  float r = 1;
+  float g = 2;
+  float b = 3;
+  float a = 4;
+}
+
+message ColorX {
+  float r = 1;
+  float g = 2;
+  float b = 3;
+  float a = 4;
+  string profile = 5;
+}
+
+message Color32 {
+  uint32 r = 1;
+  uint32 g = 2;
+  uint32 b = 3;
+  uint32 a = 4;
+}
