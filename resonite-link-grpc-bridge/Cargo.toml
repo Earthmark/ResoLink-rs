@@ -7,7 +7,7 @@ license = "MIT"
 repository = "https://github.com/Earthmark/ResoLink-rs"
 
 [dependencies]
-resonite-link-client = { path = "../resonite-link" }
+resonite-link-client = { path = "../resonite-link-client" }
 tonic = "*"
 prost = "*"
 tonic-prost = "*"
