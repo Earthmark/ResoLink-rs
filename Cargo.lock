@@ -935,6 +935,7 @@ dependencies = [
  "log",
  "prost",
  "resonite-link-client",
+ "thiserror",
  "tokio",
  "tonic",
  "tonic-prost",

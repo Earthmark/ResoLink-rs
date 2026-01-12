@@ -1,10 +1,45 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Default)]
+pub struct Int2 {
+    pub x: i32,
+    pub y: i32,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Default)]
+pub struct Int3 {
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Default)]
+pub struct Int4 {
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub w: i32,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Default)]
+pub struct Float2 {
+    pub x: f32,
+    pub y: f32,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Default)]
 pub struct Float3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Default)]
+pub struct Float4 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Default)]

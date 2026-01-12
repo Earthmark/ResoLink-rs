@@ -1,7 +1,30 @@
 use super::convert_utils::*;
 use super::*;
 use ::resonite_link_client::data_model;
-use log::warn;
+use std::convert::Infallible;
+use std::num::TryFromIntError;
+use thiserror::Error;
+use tonic::{Code, Status};
+
+#[derive(Error, Debug)]
+pub enum ResoPbMapError {
+    #[error("GRPC value for member was not set, and can not be forwarded")]
+    UnsetOneOfType,
+    #[error(transparent)]
+    IntegerOverflow(#[from] TryFromIntError),
+}
+
+impl From<ResoPbMapError> for Status {
+    fn from(error: ResoPbMapError) -> Self {
+        Self::new(Code::InvalidArgument, error.to_string())
+    }
+}
+
+impl From<Infallible> for ResoPbMapError {
+    fn from(value: Infallible) -> Self {
+        panic!("attempted to convert into ResoPbMapError {:?}", value)
+    }
+}
 
 impl_bi_into!(
     data_model::Slot,
@@ -59,14 +82,17 @@ impl_bi_into!(
 );
 
 impl_field!(Option<String>, FieldString);
+impl_field!(Option<String>, FieldUri);
+impl_field!(Option<String>, FieldEnum);
 // TODO: Implement smaller integer types, they need conversion attempts instead of full conversions.
-// impl_field!(u8, FieldByte);
-// impl_field!(u16, FieldUShort);
+impl_field!(u8, FieldByte);
+impl_field!(u16, FieldUShort);
 impl_field!(u32, FieldUInt);
 impl_field!(u64, FieldULong);
-// impl_field!(i8, FieldSByte);
-// impl_field!(i16, FieldShort);
+impl_field!(i8, FieldSByte);
+impl_field!(i16, FieldShort);
 impl_field!(i32, FieldInt);
+impl_field!(Option<i32>, FieldNullInt);
 impl_field!(i64, FieldLong);
 
 impl_field!(f32, FieldFloat);
@@ -76,12 +102,20 @@ impl_field!(f64, FieldDouble);
 impl_field!(bool, FieldBool);
 impl_field!(Option<bool>, FieldNullBool);
 
-impl_opt_field!(data_model::Float3, FieldFloat3);
-impl_opt_field!(data_model::FloatQ, FieldFloatQ);
-impl_opt_field!(data_model::Color, FieldColor);
-impl_opt_field!(data_model::ColorX, FieldColorX);
-// TODO: Requires downscaling from 32 to 8 bits.
-// impl_opt_field!(data_model::Float32, FieldColor32);
+impl_field!(data_model::Int2, FieldInt2, opt);
+impl_field!(Option<data_model::Int2>, FieldInt2, opt);
+impl_field!(data_model::Int3, FieldInt3, opt);
+impl_field!(data_model::Int4, FieldInt4, opt);
+impl_field!(data_model::Float2, FieldFloat2, opt);
+impl_field!(data_model::Float3, FieldFloat3, opt);
+impl_field!(Option<data_model::Float3>, FieldFloat3, opt);
+impl_field!(data_model::Float4, FieldFloat4, opt);
+impl_field!(data_model::FloatQ, FieldFloatQ, opt);
+impl_field!(Option<data_model::FloatQ>, FieldFloatQ, opt);
+impl_field!(data_model::Color, FieldColor, opt);
+impl_field!(data_model::ColorX, FieldColorX, opt);
+impl_field!(Option<data_model::ColorX>, FieldColorX, opt);
+impl_field!(data_model::Color32, FieldColor32, opt);
 
 impl From<data_model::Member> for Member {
     fn from(value: data_model::Member) -> Self {
@@ -93,13 +127,16 @@ impl From<data_model::Member> for Member {
                 SyncList(f) => PB::SyncList(f.into()),
                 SyncObject(f) => PB::SyncObject(f.into()),
                 String(f) => PB::String(f.into()),
-                Byte(_f) => todo!(), // PB::Byte(f.into()),
-                UShort(_f) => todo!(), // PB::Ushort(f.into()),
+                Uri(f) => PB::Uri(f.into()),
+                Enum(f) => PB::Enum(f.into()),
+                Byte(f) => PB::Byte(f.into()),
+                UShort(f) => PB::Ushort(f.into()),
                 UInt(f) => PB::Uint(f.into()),
                 ULong(f) => PB::Ulong(f.into()),
-                SByte(_f) => todo!(), // PB::Sbyte(f.into()),
-                Short(_f) => todo!(), // PB::Short(f.into()),
+                SByte(f) => PB::Sbyte(f.into()),
+                Short(f) => PB::Short(f.into()),
                 Int(f) => PB::Int(f.into()),
+                NullInt(f) => PB::NullInt(f.into()),
                 Long(f) => PB::Long(f.into()),
                 Float(f) => PB::Float(f.into()),
                 NullFloat(f) => PB::NullFloat(f.into()),
@@ -108,48 +145,67 @@ impl From<data_model::Member> for Member {
                 NullBool(f) => PB::NullBool(f.into()),
                 Color(f) => PB::Color(f.into()),
                 ColorX(f) => PB::ColorX(f.into()),
-                Color32(_f) => todo!(), // PB::Color32(f.into()),
+                NullColorX(f) => PB::NullColorX(f.into()),
+                Color32(f) => PB::Color32(f.into()),
                 Float3(f) => PB::Float3(f.into()),
+                NullFloat3(f) => PB::NullFloat3(f.into()),
                 FloatQ(f) => PB::FloatQ(f.into()),
+                NullFloatQ(f) => PB::NullFloatQ(f.into()),
+                Int2(f) => PB::Int2(f.into()),
+                NullInt2(f) => PB::NullInt2(f.into()),
+                Int3(f) => PB::Int3(f.into()),
+                Int4(f) => PB::Int4(f.into()),
+                Float2(f) => PB::Float2(f.into()),
+                Float4(f) => PB::Float4(f.into()),
             }),
         }
     }
 }
 
-impl From<Member> for data_model::Member {
-    fn from(value: Member) -> Self {
+impl TryFrom<Member> for data_model::Member {
+    type Error = ResoPbMapError;
+    fn try_from(value: Member) -> Result<Self, ResoPbMapError> {
         if let Some(kind) = value.member_kind {
             use super::member::MemberKind::*;
             type DM = data_model::Member;
-            match kind {
-                Reference(f) => DM::Reference(f.into()),
-                SyncList(f) => DM::SyncList(f.into()),
-                SyncObject(f) => DM::SyncObject(f.into()),
-                String(f) => DM::String(f.into()),
-                Byte(_f) => todo!(), // DM::Byte(f.into()),
-                Ushort(_f) => todo!(), // DM::UShort(f.into()),
-                Uint(f) => DM::UInt(f.into()),
-                Ulong(f) => DM::ULong(f.into()),
-                Sbyte(_f) => todo!(), // DM::SByte(f.into()),
-                Short(_f) => todo!(), // DM::Short(f.into()),
-                Int(f) => DM::Int(f.into()),
-                Long(f) => DM::Long(f.into()),
-                Float(f) => DM::Float(f.into()),
-                NullFloat(f) => DM::NullFloat(f.into()),
-                Double(f) => DM::Double(f.into()),
-                Bool(f) => DM::Bool(f.into()),
-                NullBool(f) => DM::NullBool(f.into()),
-                Float3(f) => DM::Float3(f.into()),
-                FloatQ(f) => DM::FloatQ(f.into()),
-                Color(f) => DM::Color(f.into()),
-                ColorX(f) => DM::ColorX(f.into()),
-                Color32(_f) => todo!(), // DM::Color32(f.into()),
-            }
+            Ok(match kind {
+                Reference(f) => DM::Reference(f.try_into()?),
+                SyncList(f) => DM::SyncList(f.try_into()?),
+                SyncObject(f) => DM::SyncObject(f.try_into()?),
+                String(f) => DM::String(f.try_into()?),
+                Uri(f) => DM::Uri(f.try_into()?),
+                Enum(f) => DM::Enum(f.try_into()?),
+                Byte(f) => DM::Byte(f.try_into()?),
+                Ushort(f) => DM::UShort(f.try_into()?),
+                Uint(f) => DM::UInt(f.try_into()?),
+                Ulong(f) => DM::ULong(f.try_into()?),
+                Sbyte(f) => DM::SByte(f.try_into()?),
+                Short(f) => DM::Short(f.try_into()?),
+                Int(f) => DM::Int(f.try_into()?),
+                NullInt(f) => DM::NullInt(f.try_into()?),
+                Int2(f) => DM::Int2(f.try_into()?),
+                NullInt2(f) => DM::NullInt2(f.try_into()?),
+                Int3(f) => DM::Int3(f.try_into()?),
+                Int4(f) => DM::Int4(f.try_into()?),
+                Long(f) => DM::Long(f.try_into()?),
+                Float(f) => DM::Float(f.try_into()?),
+                NullFloat(f) => DM::NullFloat(f.try_into()?),
+                Double(f) => DM::Double(f.try_into()?),
+                Bool(f) => DM::Bool(f.try_into()?),
+                NullBool(f) => DM::NullBool(f.try_into()?),
+                Float2(f) => DM::Float2(f.try_into()?),
+                Float3(f) => DM::Float3(f.try_into()?),
+                NullFloat3(f) => DM::NullFloat3(f.try_into()?),
+                Float4(f) => DM::Float4(f.try_into()?),
+                FloatQ(f) => DM::FloatQ(f.try_into()?),
+                NullFloatQ(f) => DM::NullFloatQ(f.try_into()?),
+                Color(f) => DM::Color(f.try_into()?),
+                ColorX(f) => DM::ColorX(f.try_into()?),
+                NullColorX(f) => DM::NullColorX(f.try_into()?),
+                Color32(f) => DM::Color32(f.try_into()?),
+            })
         } else {
-            warn!(
-                "GRPC Member was not set, defaulting to a bool. This will cause rejected messages."
-            );
-            Self::Bool(data_model::Field::new("ERR", false))
+            Err(ResoPbMapError::UnsetOneOfType)
         }
     }
 }
@@ -202,7 +258,7 @@ mod tests {
     fn test_bidirectional() {
         let src = make_test_slot();
         let mid: super::Slot = src.into();
-        let output: Slot = mid.into();
+        let output: Slot = mid.try_into().unwrap();
         assert_eq!(output, make_test_slot());
     }
 }
