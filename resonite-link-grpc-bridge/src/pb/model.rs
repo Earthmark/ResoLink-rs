@@ -84,7 +84,9 @@ impl_bi_into!(
 
 impl_bi_into!(data_model::Enum, Enum, [id, value, enum_type,]);
 
-impl_bi_into!(data_model::Empty, Empty, [id,]);
+impl_bi_into!(data_model::Empty, Empty, [
+    id,
+]);
 
 impl_bi_into!(
     data_model::ArrayField<data_model::Float3>,
