@@ -1,6 +1,7 @@
 use super::convert_utils::*;
 use super::*;
 use ::resonite_link_client::data_model;
+use ::resonite_link_client::data_model::{F32, F64};
 use std::convert::Infallible;
 use std::num::TryFromIntError;
 use thiserror::Error;
@@ -81,6 +82,28 @@ impl_bi_into!(
     ]
 );
 
+impl_bi_into!(data_model::Enum, Enum, [id, value, enum_type,]);
+
+impl_bi_into!(data_model::Empty, Empty, [id,]);
+
+impl_bi_into!(
+    data_model::ArrayField<data_model::Float3>,
+    FieldFloat3Vec,
+    [
+        id,
+        values vec,
+    ]
+);
+
+impl_bi_into!(
+    data_model::ArrayField<data_model::FloatQ>,
+    FieldFloatQVec,
+    [
+        id,
+        values vec,
+    ]
+);
+
 impl_field!(Option<String>, FieldString);
 impl_field!(Option<String>, FieldUri);
 impl_field!(Option<String>, FieldEnum);
@@ -95,9 +118,9 @@ impl_field!(i32, FieldInt);
 impl_field!(Option<i32>, FieldNullInt);
 impl_field!(i64, FieldLong);
 
-impl_field!(f32, FieldFloat);
-impl_field!(Option<f32>, FieldNullFloat);
-impl_field!(f64, FieldDouble);
+impl_field!(F32, FieldFloat);
+impl_field!(Option<F32>, FieldNullFloat, opt);
+impl_field!(F64, FieldDouble);
 
 impl_field!(bool, FieldBool);
 impl_field!(Option<bool>, FieldNullBool);
@@ -129,6 +152,7 @@ impl From<data_model::Member> for Member {
                 String(f) => PB::String(f.into()),
                 Uri(f) => PB::Uri(f.into()),
                 Enum(f) => PB::Enum(f.into()),
+                Empty(f) => PB::Empty(f.into()),
                 Byte(f) => PB::Byte(f.into()),
                 UShort(f) => PB::Ushort(f.into()),
                 UInt(f) => PB::Uint(f.into()),
@@ -149,7 +173,9 @@ impl From<data_model::Member> for Member {
                 Color32(f) => PB::Color32(f.into()),
                 Float3(f) => PB::Float3(f.into()),
                 NullFloat3(f) => PB::NullFloat3(f.into()),
+                Float3Vec(f) => PB::Float3Vec(f.into()),
                 FloatQ(f) => PB::FloatQ(f.into()),
+                FloatQVec(f) => PB::FloatQVec(f.into()),
                 NullFloatQ(f) => PB::NullFloatQ(f.into()),
                 Int2(f) => PB::Int2(f.into()),
                 NullInt2(f) => PB::NullInt2(f.into()),
@@ -175,6 +201,7 @@ impl TryFrom<Member> for data_model::Member {
                 String(f) => DM::String(f.try_into()?),
                 Uri(f) => DM::Uri(f.try_into()?),
                 Enum(f) => DM::Enum(f.try_into()?),
+                Empty(f) => DM::Empty(f.try_into()?),
                 Byte(f) => DM::Byte(f.try_into()?),
                 Ushort(f) => DM::UShort(f.try_into()?),
                 Uint(f) => DM::UInt(f.try_into()?),
@@ -196,9 +223,11 @@ impl TryFrom<Member> for data_model::Member {
                 Float2(f) => DM::Float2(f.try_into()?),
                 Float3(f) => DM::Float3(f.try_into()?),
                 NullFloat3(f) => DM::NullFloat3(f.try_into()?),
+                Float3Vec(f) => DM::Float3Vec(f.try_into()?),
                 Float4(f) => DM::Float4(f.try_into()?),
                 FloatQ(f) => DM::FloatQ(f.try_into()?),
                 NullFloatQ(f) => DM::NullFloatQ(f.try_into()?),
+                FloatQVec(f) => DM::FloatQVec(f.try_into()?),
                 Color(f) => DM::Color(f.try_into()?),
                 ColorX(f) => DM::ColorX(f.try_into()?),
                 NullColorX(f) => DM::NullColorX(f.try_into()?),

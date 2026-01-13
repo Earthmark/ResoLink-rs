@@ -8,7 +8,7 @@ repository = "https://github.com/Earthmark/ResoLink-rs"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde_json = "*"
 tokio = { version =  "*", features = ["full"] }
 tokio-tungstenite = "*"
 rand = "0.9"

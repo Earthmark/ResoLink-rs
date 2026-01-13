@@ -1,22 +1,5 @@
 macro_rules! impl_bi_into {
     ($dm_type:ty, $grpc_type:path, [$($field:ident $($opt:ident)?),+ $(,)?]) => {
-/*        impl ResoPBType<$grpc_type> for $dm_type {
-            fn forward(self) -> $grpc_type {
-                $grpc_type {
-                    $(
-                        $field: to_dm_field!(self.$field$($opt)?),
-                    )+
-                }
-            }
-            fn reverse(other: $grpc_type) -> Result<Self, super::model::ResoPbMapError> {
-                Ok(Self {
-                    $(
-                        $field: to_grpc_field!(other.$field$($opt)?),
-                    )+
-                })
-            }
-        }
-*/
         impl From<$dm_type> for $grpc_type {
             fn from(src: $dm_type) -> Self {
                 Self {
@@ -91,6 +74,9 @@ macro_rules! impl_field {
     };
     ($dm_type:ty, $grpc_type:ty, opt) => {
         impl_bi_into!(data_model::Field<$dm_type>, $grpc_type, [id, value opt]);
+    };
+    ($dm_type:ty, $grpc_type:ty, vec) => {
+        impl_bi_into!(data_model::Field<$dm_type>, $grpc_type, [id, value vec]);
     };
 }
 

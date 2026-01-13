@@ -1,10 +1,12 @@
 use crate::controller::id_generator::IdGenerator;
 use crate::messages::{Message, MessageWrapper};
-use crate::responses::Response;
+use crate::responses::{FallbackResponse, Response};
 use futures_util::{Sink, SinkExt, Stream, StreamExt};
 use log::{error, warn};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::fs;
 use std::sync::Arc;
 use thiserror::Error;
 use tokio::sync::{Mutex, mpsc};
@@ -72,6 +74,8 @@ pub enum ClientError {
     ConnectionClosed,
     #[error("outbound message is invalid {0}")]
     MessageRenderingError(serde_json::Error),
+    #[error("inbound message is invalid {0}")]
+    MessageParsingError(serde_json::Error),
 }
 
 type Responder = oneshot::Sender<Result<Response, ClientError>>;
@@ -178,24 +182,30 @@ async fn ws_reader<
         _ = shutdown.wait() => return ws,
     } {
         let text = msg.to_text().unwrap();
-        let response: Response = match serde_json::from_str(text) {
-            Ok(response) => response,
-            Err(e) => {
-                warn!(
-                    "Message from server was not parsed successfully (The Member enum isn't complete, that may be what's wrong): {:?}",
-                    e
-                );
-                continue;
-            }
+        let (id, response) = match serde_json::from_str::<Response>(text) {
+            Ok(response) => (response.source_message_id.clone(), Ok(response)),
+            Err(e) => match serde_json::from_str::<FallbackResponse>(text) {
+                Ok(response) => (
+                    response.source_message_id.clone(),
+                    Err(ClientError::MessageParsingError(e)),
+                ),
+                Err(_) => {
+                    warn!(
+                        "Message from server was not parsed successfully, and the fallback also failed. The RPC will never complete. {:?}",
+                        e
+                    );
+                    continue;
+                }
+            },
         };
 
-        let id = response.source_message_id.as_ref().unwrap();
-
-        if let Some(resp) = in_flight_messages.lock().await.remove(id) {
-            // If discarded nothing got the message, which is fine.
-            _ = resp.send(Ok(response));
-        } else {
-            warn!("Unpaired outbound message: {:?}", response);
+        if let Some(id) = id {
+            if let Some(resp) = in_flight_messages.lock().await.remove(&id) {
+                // If discarded nothing got the message, which is fine.
+                _ = resp.send(response);
+            } else {
+                warn!("Unpaired outbound message: {:?}", response);
+            }
         }
     }
 

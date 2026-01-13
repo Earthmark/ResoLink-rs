@@ -9,9 +9,10 @@ message Member {
     Reference reference = 1;
     SyncList sync_list = 2;
     SyncObject sync_object = 3;
+    Enum enum = 24;
+    Empty empty = 36;
     FieldString string = 4;
     FieldUri uri = 23;
-    FieldEnum enum = 24;
     FieldByte byte = 5;
     FieldUShort ushort = 6;
     FieldUInt uint = 7;
@@ -32,10 +33,12 @@ message Member {
     FieldNullBool nullBool = 17;
     FieldFloat2 float2 = 28;
     FieldFloat3 float3 = 18;
+    FieldFloat3Vec float3Vec = 35;
     FieldFloat3 nullFloat3 = 33;
     FieldFloat4 float4 = 29;
     FieldFloatQ floatQ = 19;
     FieldFloatQ nullFloatQ = 34;
+    FieldFloatQVec floatQVec = 37;
     FieldColor color = 20;
     FieldColorX colorX = 21;
     FieldColorX nullColorX = 30;
@@ -59,6 +62,16 @@ message SyncList {
 message SyncObject {
   string id = 1;
   map<string, Member> members = 2;
+}
+
+message Enum {
+  string id = 1;
+  string value = 2;
+  string enum_type = 3;
+}
+
+message Empty {
+  string id = 1;
 }
 
 message FieldString {
@@ -171,6 +184,11 @@ message FieldFloat3 {
   Float3 value = 2;
 }
 
+message FieldFloat3Vec {
+  string id = 1;
+  repeated Float3 values = 2;
+}
+
 message FieldFloat4 {
   string id = 1;
   Float4 value = 2;
@@ -194,5 +212,10 @@ message FieldColor32 {
 message FieldFloatQ {
   string id = 1;
   FloatQ value = 2;
+}
+
+message FieldFloatQVec {
+  string id = 1;
+  repeated FloatQ values = 2;
 }
 
