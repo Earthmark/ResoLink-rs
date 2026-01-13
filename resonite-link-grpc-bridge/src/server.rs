@@ -23,7 +23,7 @@ impl LinkProxy {
             .client
             .send(req)
             .await
-            .map_err(|e| Status::new(Code::Unavailable, format!("{:?}", e)))?;
+            .map_err(|e| Status::new(Code::Internal, format!("{:?}", e)))?;
 
         if !response.success {
             return Err(Status::new(

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::ops::{Deref, DerefMut};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Default)]
 #[serde(rename_all = "camelCase")]
@@ -14,20 +13,6 @@ impl<T> Field<T> {
             id: id.into(),
             value,
         }
-    }
-}
-
-impl<T> Deref for Field<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        &self.value
-    }
-}
-
-impl<T> DerefMut for Field<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.value
     }
 }
 

@@ -1,5 +1,6 @@
 use crate::server::LinkProxy;
 use clap::Parser;
+use log::info;
 use tonic::transport::Server;
 
 mod pb;
@@ -23,10 +24,12 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    env_logger::init();
+    env_logger::init_from_env(env_logger::Env::default().default_filter_or("info"));
     let args = Args::parse();
 
     let client = resonite_link_client::Client::connect(&args.resolink_addr, None).await?;
+
+    info!("ResoniteLink connected, starting GRPC server.");
 
     Server::builder()
         .add_service(pb::resonite_link_server::ResoniteLinkServer::new(

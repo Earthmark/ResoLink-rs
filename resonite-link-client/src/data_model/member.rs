@@ -1,9 +1,10 @@
-use crate::data_model::Field;
+use crate::data_model::{ArrayField, Empty, Field, F32, F64};
 use crate::data_model::primitives::*;
 use crate::data_model::reference::Reference;
 use crate::data_model::sync_list::SyncList;
 use crate::data_model::sync_object::SyncObject;
 use serde::{Deserialize, Serialize};
+use crate::data_model::enum_field::Enum;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 #[serde(rename_all = "camelCase", tag = "$type")]
@@ -16,13 +17,16 @@ pub enum Member {
     #[serde(rename = "syncObject")]
     SyncObject(SyncObject),
 
+    #[serde(rename = "empty")]
+    Empty(Empty),
+
     // Char(r)?
-    #[serde(rename = "string", alias = "empty")]
+    #[serde(rename = "string")]
     String(Field<Option<String>>),
     #[serde(rename = "Uri")]
     Uri(Field<Option<String>>),
     #[serde(rename = "enum")]
-    Enum(Field<Option<String>>),
+    Enum(Enum),
 
     #[serde(rename = "byte")]
     Byte(Field<u8>),
@@ -54,11 +58,11 @@ pub enum Member {
     Int4(Field<Int4>),
 
     #[serde(rename = "float")]
-    Float(Field<f32>),
+    Float(Field<F32>),
     #[serde(rename = "float?")]
-    NullFloat(Field<Option<f32>>),
+    NullFloat(Field<Option<F32>>),
     #[serde(rename = "double")]
-    Double(Field<f64>),
+    Double(Field<F64>),
 
     // decimal?
     #[serde(rename = "bool")]
@@ -82,6 +86,8 @@ pub enum Member {
     Float2(Field<Float2>),
     #[serde(rename = "float3")]
     Float3(Field<Float3>),
+    #[serde(rename = "float3[]")]
+    Float3Vec(ArrayField<Float3>),
     #[serde(rename = "float3?")]
     NullFloat3(Field<Option<Float3>>),
     #[serde(rename = "float4")]
@@ -91,6 +97,8 @@ pub enum Member {
     FloatQ(Field<FloatQ>),
     #[serde(rename = "floatQ?")]
     NullFloatQ(Field<Option<FloatQ>>),
+    #[serde(rename = "floatQ[]")]
+    FloatQVec(ArrayField<FloatQ>),
     // TODO: Implement more fields.
 }
 
@@ -109,8 +117,8 @@ impl super::ID for Member {
         use Member::*;
         match_id!(
             self, Reference, SyncList, SyncObject, String, Uri, Enum, Byte, UShort, UInt, ULong,
-            SByte, Short, NullInt, Int, NullInt2, Int2, Int3, Int4, Long, Float, Float3, NullFloat3, FloatQ, Float2, Float4,
-            NullFloatQ, NullFloat, Double, Bool, NullBool, Color, ColorX, Color32, NullColorX
+            SByte, Short, NullInt, Int, NullInt2, Int2, Float3Vec, Int3, Int4, Long, Float, Float3, NullFloat3, FloatQ, Float2, Float4,
+            NullFloatQ, NullFloat, FloatQVec, Empty, Double, Bool, NullBool, Color, ColorX, Color32, NullColorX
         )
     }
 }
@@ -149,7 +157,7 @@ mod tests {
     #[test]
     fn nullable_float() {
         assert_bi_eq_json(
-            Member::NullFloat(Field::new("Taco", Some(3f32))),
+            Member::NullFloat(Field::new("Taco", Some(3f32.into()))),
             json!({
                 "$type": "float?",
                 "id": "Taco",
